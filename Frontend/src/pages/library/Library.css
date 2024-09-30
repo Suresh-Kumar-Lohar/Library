@@ -1,0 +1,13 @@
+.btn-position {
+  position: absolute;
+  top: 1.5%;
+  right: 1%;
+  padding: 4px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100px;
+}

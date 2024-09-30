@@ -1,7 +1,8 @@
 import Book from "../database/schemas/book.js";
+import UserBorrowBooks from "../database/schemas/userBorrowBooks.js";
 
 class BookModel {
-  async bookList(search, page = 1, limit = 10, sortBy = "createdAt", order = "desc", extraQuery = {}) {
+  async bookList(search, page, limit, sortBy, order, extraQuery = {}) {
     page = page || 1;
     limit = limit || 10;
     sortBy = sortBy || "createdAt";
@@ -36,8 +37,24 @@ class BookModel {
     };
   }
 
+  async findBookByUser(query) {
+    return await UserBorrowBooks.findOne(query);
+  }
+
   async createBooks(data) {
     await Book.create(data);
+  }
+
+  async findBooks(query) {
+    return await Book.find(query);
+  }
+
+  async createUserBook(filter, update) {
+    return await UserBorrowBooks.findOneAndUpdate(filter, update, { upsert: true, new: true });
+  }
+
+  async updateBooks(bulkOperations) {
+    return await Book.bulkWrite(bulkOperations);
   }
 }
 

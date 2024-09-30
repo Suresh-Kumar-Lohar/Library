@@ -1,0 +1,52 @@
+.library {
+  margin-top: 10px;
+  padding-top: 40px;
+  padding-bottom: 20px;
+}
+
+.library h2 {
+  float: left;
+  font-size: 24px;
+  margin: 0;
+}
+
+.library-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.search {
+  display: flex;
+  gap: 20px;
+}
+
+.pagination {
+  display: flex;
+  gap: 2px;
+  justify-content: end;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table th {
+  background-color: #f2f2f2;
+}
+
+button {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+}

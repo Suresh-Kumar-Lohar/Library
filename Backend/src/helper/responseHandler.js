@@ -47,6 +47,15 @@ class ResponseHandler {
     );
   }
 
+  conflict(message, data, info) {
+    this.sender(
+      STATUS_CODES.CONFLICT,
+      message || "STATUS.CONFLICT",
+      data,
+      info
+    );
+  }
+
   validationError(message, error) {
     this.sender(
       STATUS_CODES.VALIDATION_ERROR,
