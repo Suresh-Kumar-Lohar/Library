@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { getBookList, borrowBook, getUserBorrowList } from "../../Api/Service"; // Importing API functions
+import { getBookList, borrowBook, getUserBorrowList } from "../../Api/Service";
 import Search from "../../components/Search/Search";
 import Pagination from "../../components/Pagination/Pagination";
 import "./Books.css";
 
 const Books = () => {
-  const [libraryBooks, setLibraryBooks] = useState([]); // Initialize as empty array
-  const [userLibrary, setUserLibrary] = useState([]); // Initialize as empty array
-  const [filteredBooks, setFilteredBooks] = useState([]); // Initialize as empty array
-  const [borrowList, setBorrowList] = useState([]); // Temporary borrow list
+  const [libraryBooks, setLibraryBooks] = useState([]);
+  const [userLibrary, setUserLibrary] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [borrowList, setBorrowList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const booksPerPage = 5;
-  const maxBorrowLimit = 2; // Max limit for borrowed books
+  const maxBorrowLimit = 2;
 
-  // Fetch books and user library on component mount
   useEffect(() => {
     const fetchBooksAndUserLibrary = async () => {
       setIsLoading(true);
@@ -29,10 +28,9 @@ const Books = () => {
 
         const userLibraryData = await getUserBorrowList();
 
-        // Check if bookData and userLibraryData are defined and contain the expected fields
         if (bookData && bookData.data.bookList) {
           setLibraryBooks(bookData.data.bookList);
-          setFilteredBooks(bookData.data.bookList); // Initialize filteredBooks with the full book list
+          setFilteredBooks(bookData.data.bookList);
         } else {
           console.error("Invalid book data:", bookData);
         }
@@ -52,9 +50,8 @@ const Books = () => {
     };
 
     fetchBooksAndUserLibrary();
-  }, []);
+  }, [borrowList]);
 
-  // Add books to the borrow list locally
   const handleAddToBorrowList = (id) => {
     if (borrowList.length < maxBorrowLimit) {
       const bookExists = borrowList.some((book) => book._id === id);
@@ -69,7 +66,6 @@ const Books = () => {
     }
   };
 
-  // Handle the actual borrow action, calling the API
   const handleBorrowBooks = async () => {
     if (borrowList.length === 0) {
       alert("No books in the borrow list.");
@@ -80,16 +76,14 @@ const Books = () => {
 
     try {
       await borrowBook({ bookIds });
-      // After successful API call, update user library
       const updatedUserLibrary = await getUserBorrowList();
       setUserLibrary(updatedUserLibrary.borrowedBooks);
-      setBorrowList([]); // Clear borrow list after borrowing
+      setBorrowList([]);
     } catch (error) {
       console.error("Error borrowing books:", error);
     }
   };
 
-  // Handle search
   const handleSearch = (query) => {
     if (query) {
       setFilteredBooks(
@@ -100,10 +94,8 @@ const Books = () => {
     } else {
       setFilteredBooks(libraryBooks);
     }
-    setCurrentPage(1); // Reset to the first page after a new search
   };
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;

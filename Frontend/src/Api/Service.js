@@ -1,6 +1,5 @@
-import customFetch from "../utils/axios"; // Importing the custom axios instance
+import customFetch from "../utils/axios";
 
-// Function to get the list of books
 export const getBookList = async (payload) => {
   try {
     const response = await customFetch.post("/book/list", payload);
@@ -11,7 +10,6 @@ export const getBookList = async (payload) => {
   }
 };
 
-// Function to borrow a book
 export const borrowBook = async (payload) => {
   console.log("Payload", payload)
   try {
@@ -23,7 +21,6 @@ export const borrowBook = async (payload) => {
   }
 };
 
-// Function to get user's borrowed book list
 export const getUserBorrowList = async () => {
   try {
     const response = await customFetch.get("/book/user-borrow-list");
@@ -35,7 +32,6 @@ export const getUserBorrowList = async () => {
   }
 };
 
-// Function to seed books (for development purposes)
 export const addBooks = async () => {
   try {
     const response = await customFetch.get("/seeder/add-books");
@@ -56,7 +52,7 @@ export const returnBooks = async (bookIds) => {
       },
       body: JSON.stringify({ bookIds }),
     });
-    return await response.json(); // Assuming the API responds with JSON
+    return await response.json();
   } catch (error) {
     console.error("Error in returnBooks API:", error);
     throw error;
