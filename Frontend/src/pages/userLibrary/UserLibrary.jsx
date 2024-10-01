@@ -1,25 +1,63 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { removeFromUserLibrary } from "../../redux/books/booksSlice";
-import Search from "../../components/Search/Search";
-import Pagination from "../../components/Pagination/Pagination";
-import "./UserLibrary.css";
+import Search from "../../components/Search/Search"; // Import Search component
+import Pagination from "../../components/Pagination/Pagination"; // Import Pagination component
+import "./UserLibrary.css"; // Import styles
+import { getUserBorrowList, returnBooks } from "../../Api/Service"; // Import the returnBooks API call
 
 const UserLibrary = () => {
-  const dispatch = useDispatch();
-  const { userLibrary } = useSelector((state) => state.books);
-  const [filteredBooks, setFilteredBooks] = useState(userLibrary);
+  const [userLibrary, setUserLibrary] = useState([]); // Local state for user library
+  console.log("🚀 ~ UserLibrary ~ userLibrary:", userLibrary);
+  const [filteredBooks, setFilteredBooks] = useState([]); // Local state for filtered books
+  console.log("🚀 ~ UserLibrary ~ filteredBooks:", filteredBooks);
   const [currentPage, setCurrentPage] = useState(1);
   const booksPerPage = 5;
 
   useEffect(() => {
-    setFilteredBooks(userLibrary);
-  }, [userLibrary]);
+    // Fetch user library on mount (from API)
+    const fetchUserLibrary = async () => {
+      try {
+        const userLibraryData = await getUserBorrowList(); // Replace with your API endpoint
+        console.log("🚀 ~ fetchUserLibrary ~ userLibraryData:", userLibraryData);
 
-  const handleRemove = (id) => {
-    dispatch(removeFromUserLibrary(id));
+        // Check if the response contains bookIds
+        if (userLibraryData && userLibraryData.data.bookIds) {
+          setUserLibrary(userLibraryData.data.bookIds);
+          setFilteredBooks(userLibraryData.data.bookIds);
+        } else {
+          // Handle the case where userLibraryData is undefined or doesn't have bookIds
+          setUserLibrary([]); // Set to an empty array if no data
+          setFilteredBooks([]); // Also set filteredBooks to empty
+        }
+      } catch (error) {
+        console.error("Error fetching user library:", error);
+        // Handle error (e.g., show a notification or set an error state)
+      }
+    };
+
+    fetchUserLibrary();
+  }, []);
+
+  // Handle removing (returning) a book from the user library
+  const handleRemove = async (id) => {
+    try {
+      // Call the returnBooks API to update the backend
+      const response = await returnBooks([id]);
+      if (response && response.success) {
+        // If the API call was successful, update the UI locally
+        const updatedLibrary = userLibrary.filter((book) => book.id !== id);
+        setUserLibrary(updatedLibrary);
+        setFilteredBooks(updatedLibrary);
+      } else {
+        // Handle failure case (e.g., show an error message)
+        console.error("Failed to return the book:", response.message);
+      }
+    } catch (error) {
+      console.error("Error returning book:", error);
+      // Handle error (e.g., show a notification)
+    }
   };
 
+  // Handle search functionality
   const handleSearch = (query) => {
     if (query) {
       setFilteredBooks(
@@ -32,16 +70,19 @@ const UserLibrary = () => {
     } else {
       setFilteredBooks(userLibrary);
     }
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to the first page after a new search
   };
 
+  // Pagination logic
   const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
   const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   return (
@@ -68,11 +109,11 @@ const UserLibrary = () => {
             <tbody>
               {currentBooks.map((book) => (
                 <tr key={book.id}>
-                  <td>{book.name}</td>
+                  <td>{book.title}</td>
                   <td>{book.author}</td>
                   <td>
                     <button onClick={() => handleRemove(book.id)}>
-                      Remove
+                      Return
                     </button>
                   </td>
                 </tr>
@@ -80,7 +121,7 @@ const UserLibrary = () => {
             </tbody>
           </table>
 
-          {totalPages >= 1 && (
+          {totalPages > 1 && (
             <div className="pagination">
               <Pagination
                 currentPage={currentPage}

@@ -37,8 +37,12 @@ class BookModel {
     };
   }
 
-  async findBookByUser(query) {
-    return await UserBorrowBooks.findOne(query);
+  async findBookByUser(query, populateBooks = false) {
+    if (populateBooks) {
+      return await UserBorrowBooks.findOne(query).populate("bookIds");
+    } else {
+      return await UserBorrowBooks.findOne(query);
+    }
   }
 
   async createBooks(data) {
